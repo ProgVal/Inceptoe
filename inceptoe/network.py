@@ -37,6 +37,13 @@ class Handler(asyncore.dispatcher):
         if ui is not None:
             ui.set_handler(self)
 
+    def readable(self):
+        time.sleep(0.1)
+        return True
+
+    def writeable(self):
+        return True
+
     def handle_read(self):
         data = self.recv(4096)
         self._unpacker.feed(data)
