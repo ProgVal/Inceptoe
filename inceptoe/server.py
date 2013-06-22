@@ -7,6 +7,7 @@ from .match import Match
 from .game import Game, InvalidMove
 
 class ClientHandler(network.Handler):
+    """Handles connection to a client."""
     def __init__(self, sock, addr, server):
         print('Client connecting from %s.' % (addr,))
         self._addr = addr
@@ -102,6 +103,7 @@ class ClientHandler(network.Handler):
 
     
 class ServerDriver(asyncore.dispatcher):
+    """Factory of ClientHandler objects."""
     def __init__(self, host, port):
         super(ServerDriver, self).__init__()
         self._clients = {}

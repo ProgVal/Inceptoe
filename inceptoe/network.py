@@ -24,12 +24,14 @@ class NoDataReceived(Exception):
 _last_uid = 0
 _uid_lock = threading.Lock()
 def uid():
+    """Return an unique ID (obtained with thread-safe incrementation)."""
     global _last_uid, _uid_lock
     with _uid_lock:
         _last_uid += 1
         return str(_last_uid)
 
 class Handler(asyncore.dispatcher):
+    """Abstract class for managing a connection an events."""
     def __init__(self, sock=None, ui=None):
         super(Handler, self).__init__(sock)
         self._unpacker = msgpack.Unpacker(use_list=True, encoding='utf8')
@@ -51,6 +53,7 @@ class Handler(asyncore.dispatcher):
             pass
 
     def _read_object(self):
+        """Read an object and dispatch it according to the `command` entry."""
         try:
             obj = self._unpacker.unpack()
         except msgpack.exceptions.OutOfData:
@@ -74,6 +77,7 @@ class Handler(asyncore.dispatcher):
 
 
 def run():
+    """Run the network drivers."""
     try:
         asyncore.loop()
     except KeyboardInterrupt:

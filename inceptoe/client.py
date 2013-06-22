@@ -7,6 +7,7 @@ from .game import Game
 from .match import Match
 
 class ServerHandler(network.Handler):
+    """Handles connection to a server."""
     def __init__(self, host, port, ui):
         super(ServerHandler, self).__init__(ui=ui)
         self._server_version = None

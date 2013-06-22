@@ -2,11 +2,18 @@ class InvalidMove(Exception):
     pass
 
 def mini_board_coord(line, column):
+    """Returns the coordinates of the mini board containing the given
+    cell coordinates."""
     return (line // 3, column // 3)
 def coord_in_mini_board(line, column):
+    """Returns the coordinates of a cell in its mini board."""
     return (line % 3, column % 3)
 
 def board_winner(board):
+    """Determines the winner of a board (mini board or meta board).
+
+    :param board: A 3x3 list of lists (or any iterable).
+    :return: The character of the winner, or None."""
     def valid(char):
         return char not in (None, ' ')
     for l in range(0, 3):
@@ -23,6 +30,7 @@ def board_winner(board):
 
 
 class Game:
+    """State of a game."""
     def __init__(self, current_player, users, grid=None, last_move=None):
         self.current_player = current_player
         self.users = users
@@ -31,6 +39,8 @@ class Game:
 
     @classmethod
     def from_dict(self, dict_):
+        """Instanciate a Game instance from a dictionnary sent via
+        the network."""
         assert isinstance(dict_, dict)
         current_player = dict_['current_player']
         users = dict_['users']
@@ -52,6 +62,7 @@ class Game:
         return Game(current_player, users, grid)
 
     def to_dict(self):
+        """Generate a dictionnary that can be serialized."""
         return {'current_player': self.current_player, 'users': self.users,
                 'grid': self.grid, 'last_move': self.last_move}
 
@@ -61,6 +72,14 @@ class Game:
                 (self.current_player, self.users, self.grid, self.last_move)
 
     def make_move(self, line, column, apply_=True):
+        """Checks if a move is authorized.
+
+        :param line: The line of the move (from 0 to 8)
+        :param column: The column of th move (from 0 to 8)
+        :param apply_: If True (and if the move is authorized), commits the
+                       change to the grid.
+        :throws InvalidMove: If the move is not valid.
+        """
         if self.last_move is not None:
             if self.grid[line][column] != ' ':
                 raise InvalidMove('This cell has already been played.')
@@ -78,11 +97,17 @@ class Game:
             self.current_player = self.select_next_player()
 
     def select_next_player(self):
+        """Returns the char of the next player."""
         def f(c):
             return c and c != self.current_player and c != ' '
         return list(filter(f, self.users.values()))[0]
 
     def mini_board_winner(self, line, column):
+        """Determines the winner of a mini board.
+
+        :param line: Line of the mini board (from 0 to 2).
+        :param column: Column of the mini board (from 0 to 2).
+        :returns: The character of the winner of the mini board or None."""
         g = self.grid
         l = line
         c = column
@@ -92,6 +117,9 @@ class Game:
             g[l*3+2][c*3:c*3+3],
             ])
     def board_winner(self):
+        """Determines the winner of the game.
+
+        :returns: The character of the winner of the mini board or None."""
         g = self.grid
         w = board_winner
         return w([[
