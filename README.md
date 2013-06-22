@@ -73,6 +73,15 @@ Keys:
 * `users`: List of users in the match (including the recipient), if the
   match request is accepted.
 
+user\_joined\_match
+-------------------
+
+Sent by the server when a user joined a match.
+
+Keys:
+* `user`: The identifier of the user.
+* `match_id`: The ID of the match if it is accepted.
+
 new\_game
 ---------
 
@@ -85,3 +94,14 @@ Keys:
 * `users`: {user: char} mapping.
 * `current_player`: Character of the player who is expected to play first.
   (one-char string).
+
+make\_move
+----------
+
+Sent by a client (when the player plays) or by a server (relayed from a
+client).
+
+Keys:
+* `match_id`
+* `line`
+* `column`

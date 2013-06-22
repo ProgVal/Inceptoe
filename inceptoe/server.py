@@ -3,15 +3,15 @@ import msgpack
 import asyncore
 
 from . import network
-from .game import Game
 from .match import Match
+from .game import Game, InvalidMove
 
 class ClientHandler(network.Handler):
     def __init__(self, sock, addr, server):
-        super(ClientHandler, self).__init__(sock)
         print('Client connecting from %s.' % (addr,))
         self._addr = addr
         self._server = server
+        super(ClientHandler, self).__init__(sock)
 
     def on_handshake(self, handshake):
         assert 'version' in handshake, handshake
@@ -43,6 +43,10 @@ class ClientHandler(network.Handler):
                 'error_message': 'This match (%r) does not exist.' % match_id
                 }))
             return
+        for (addr, handler) in match.users.items():
+            handler.send(msgpack.packb({'command': 'user_joined_match',
+                'user': str(self._addr),
+                'match_id': match_id}))
         match.users[self._addr] = self
         self.send(msgpack.packb({'command': 'join_match_reply',
             'accepted': True,
@@ -54,6 +58,7 @@ class ClientHandler(network.Handler):
             users = dict(zip(map(str, match.users), ['X', 'O'] +
                     list(map(lambda x:None, range(2, len(match.users))))))
             game = Game('X', users)
+            self._server._matches[match_id].game = game
             for (addr, handler) in match.users.items():
                 handler.send(msgpack.packb({'command': 'new_game',
                     'match_id': match_id,
@@ -61,6 +66,26 @@ class ClientHandler(network.Handler):
                     'game': game.to_dict()}))
 
         return match
+
+    def on_make_move(self, obj):
+        line = obj['line']
+        column = obj['column']
+        assert isinstance(line, int)
+        assert isinstance(column, int)
+        assert 0 <= line <= 8
+        assert 0 <= column <= 8
+        match = self._server._matches[obj['match_id']]
+        try:
+            match.game.make_move(line, column)
+        except InvalidMove as e:
+            self.send(msgpack.packb({'command': 'error',
+                'message': 'Invalid move: %s' % e.args[0]}))
+            return
+        for (addr, handler) in match.users.items():
+            handler.send(msgpack.packb({'command': 'make_move',
+                'match_id': obj['match_id'],
+                'line': line,
+                'column': column}))
 
     def handle_close(self):
         if not self.connected: # This method is actually called twice

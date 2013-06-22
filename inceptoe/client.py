@@ -11,7 +11,7 @@ class ServerHandler(network.Handler):
         super(ServerHandler, self).__init__(ui=ui)
         self._server_version = None
         self._match = None
-        self._games = []
+        self._games = {}
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect((host, port))
         self.send(msgpack.packb({'command': 'handshake',
@@ -20,6 +20,12 @@ class ServerHandler(network.Handler):
     def join_match(self, match_id):
         self.send(msgpack.packb({'command': 'join_match',
             'match_id': match_id}))
+
+    def make_move(self, line, column):
+        self.send(msgpack.packb({'command': 'make_move',
+            'match_id': self._match.match_id,
+            'line': line,
+            'column': column}))
 
     def on_handshake_reply(self, handshake):
         assert isinstance(handshake['accepted'], bool)
@@ -38,9 +44,24 @@ class ServerHandler(network.Handler):
         self._match = Match(reply['match_id'], reply['users'])
         return self._match
 
+    def on_user_joined_match(self, obj):
+        print('User %s joined match %s' % (obj['user'], obj['match_id']))
+
     def on_new_game(self, obj):
         game = Game.from_dict(obj['game'])
-        self._games.append(game)
+        self._games[obj['match_id']] = game
+        return game
+
+    def on_make_move(self, obj):
+        assert isinstance(obj['match_id'], str)
+        line = obj['line']
+        column = obj['column']
+        assert isinstance(line, int)
+        assert isinstance(column, int)
+        assert 0 <= line <= 8
+        assert 0 <= column <= 8
+        game = self._games[obj['match_id']]
+        game.make_move(obj['line'], obj['column'])
         return game
 
 class ClientDriver(asyncore.dispatcher):

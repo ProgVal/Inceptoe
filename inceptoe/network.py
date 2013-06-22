@@ -32,8 +32,10 @@ def uid():
 class Handler(asyncore.dispatcher):
     def __init__(self, sock=None, ui=None):
         super(Handler, self).__init__(sock)
-        self._unpacker = msgpack.Unpacker(use_list=False, encoding='utf8')
+        self._unpacker = msgpack.Unpacker(use_list=True, encoding='utf8')
         self._ui = ui
+        if ui is not None:
+            ui.set_handler(self)
 
     def handle_read(self):
         data = self.recv(4096)
