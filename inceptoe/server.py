@@ -30,7 +30,7 @@ class ClientHandler(network.Handler):
         match_id = obj['match_id'] if 'match_id' in obj else None
         if match_id is None:
             match_id = network.uid()
-            match = Match()
+            match = Match(match_id=match_id)
             self._server._matches[match_id] = match
             print('User %s created match %s' % (self._addr, match_id))
         elif match_id in self._server._matches:
@@ -54,18 +54,21 @@ class ClientHandler(network.Handler):
             'users': list(map(str, match.users.keys()))}))
 
         if len(match.users) == 2:
-            assert match.game is None, match
-            users = dict(zip(map(str, match.users), ['X', 'O'] +
-                    list(map(lambda x:None, range(2, len(match.users))))))
-            game = Game('X', users)
-            self._server._matches[match_id].game = game
-            for (addr, handler) in match.users.items():
-                handler.send(msgpack.packb({'command': 'new_game',
-                    'match_id': match_id,
-                    'your_char': users[str(addr)],
-                    'game': game.to_dict()}))
-
+            self.new_game(match)
         return match
+
+    def new_game(self, match):
+        assert match.game is None, match
+        users = dict(zip(map(str, match.users), ['X', 'O'] +
+                list(map(lambda x:None, range(2, len(match.users))))))
+        game = Game('X', users)
+        self._server._matches[match.match_id].game = game
+        for (addr, handler) in match.users.items():
+            handler.send(msgpack.packb({'command': 'new_game',
+                'match_id': match.match_id,
+                'your_char': users[str(addr)],
+                'game': game.to_dict()}))
+
 
     def on_make_move(self, obj):
         line = obj['line']
@@ -86,6 +89,9 @@ class ClientHandler(network.Handler):
                 'match_id': obj['match_id'],
                 'line': line,
                 'column': column}))
+        winner = match.game.board_winner()
+        if winner is not None:
+            self.new_game(match)
 
     def handle_close(self):
         if not self.connected: # This method is actually called twice
