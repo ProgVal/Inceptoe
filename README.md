@@ -70,7 +70,8 @@ Keys:
   Ignored or not given otherwise.
 * `match_id`: The ID of the match if it is accepted (Integer).
   Ignored or not given otherwise.
-* `users`: List of users in the match (including the recipient).
+* `users`: List of users in the match (including the recipient), if the
+  match request is accepted.
 
 new\_game
 ---------
@@ -79,8 +80,8 @@ Sent by a server when a new game starts.
 
 Keys:
 * `match_id`: The ID of the match in which the game takes place.
-* `opponent_char`: Character used by the opponent (one-char string).
 * `your_char`: Character used by the client receiving this message
-  (one-char string).
+  (one-char string if playing, None if spectator).
+* `users`: {user: char} mapping.
 * `current_player`: Character of the player who is expected to play first.
   (one-char string).

@@ -27,7 +27,7 @@ def uid():
     global _last_uid, _uid_lock
     with _uid_lock:
         _last_uid += 1
-        return _last_uid
+        return str(_last_uid)
 
 class Handler(asyncore.dispatcher):
     def __init__(self, sock=None, ui=None):
@@ -38,19 +38,27 @@ class Handler(asyncore.dispatcher):
     def handle_read(self):
         data = self.recv(4096)
         self._unpacker.feed(data)
-        obj = self._unpacker.unpack()
+        while self._read_object():
+            pass
+
+    def _read_object(self):
+        try:
+            obj = self._unpacker.unpack()
+        except msgpack.exceptions.OutOfData:
+            return False
         if obj is None:
-            return
+            return False
         assert isinstance(obj, dict), obj
         assert 'command' in obj, obj
-        method = 'on_' + obj['command']
-        if hasattr(self, method):
-            method = getattr(self, method)
+        method_name = 'on_' + obj['command']
+        if hasattr(self, method_name):
+            method = getattr(self, method_name)
             parsed = method(obj)
-            if self._ui is not None:
-                getattr(self._ui, method)(obj, parsed)
+            if self._ui is not None and hasattr(self._ui, method_name):
+                getattr(self._ui, method_name)(obj, parsed)
         else:
             print('Unknown command received: %s' % obj['command'])
+        return True
 
     def handle_error(self):
         traceback.print_exc()

@@ -3,6 +3,8 @@ import msgpack
 import asyncore
 
 from . import network
+from .game import Game
+from .match import Match
 
 class ClientHandler(network.Handler):
     def __init__(self, sock, addr, server):
@@ -25,14 +27,40 @@ class ClientHandler(network.Handler):
         print('%s has version %i.' % (self._addr, version))
 
     def on_join_match(self, obj):
-        (accepted, error_message, match_id) = self._server.join_match(
-                self._addr, self,
-                obj['match_id'] if 'match_id' in obj else None)
+        match_id = obj['match_id'] if 'match_id' in obj else None
+        if match_id is None:
+            match_id = network.uid()
+            match = Match()
+            self._server._matches[match_id] = match
+            print('User %s created match %s' % (self._addr, match_id))
+        elif match_id in self._server._matches:
+            match_id = match_id
+            match = self._server._matches[match_id]
+            print('User %s joined match %s' % (self._addr, match_id))
+        else:
+            self.send(msgpack.packb({'command': 'join_match_reply',
+                'accepted': False,
+                'error_message': 'This match (%r) does not exist.' % match_id
+                }))
+            return
+        match.users[self._addr] = self
         self.send(msgpack.packb({'command': 'join_match_reply',
-            'accepted': accepted,
-            'error_message': error_message,
+            'accepted': True,
             'match_id': match_id,
             'users': list(map(str, match.users.keys()))}))
+
+        if len(match.users) == 2:
+            assert match.game is None, match
+            users = dict(zip(map(str, match.users), ['X', 'O'] +
+                    list(map(lambda x:None, range(2, len(match.users))))))
+            game = Game('X', users)
+            for (addr, handler) in match.users.items():
+                handler.send(msgpack.packb({'command': 'new_game',
+                    'match_id': match_id,
+                    'your_char': users[str(addr)],
+                    'game': game.to_dict()}))
+
+        return match
 
     def handle_close(self):
         if not self.connected: # This method is actually called twice
@@ -56,31 +84,16 @@ class ServerDriver(asyncore.dispatcher):
         (sock, addr) = self.accept()
         self._clients[addr] = ClientHandler(sock, addr, self)
 
-    def join_match(self, addr, client, match_id=None):
-        if match_id is None:
-            match_id = network.uid()
-            match = Match()
-            self._matches[match_id] = match
-            print('User %s created match %i' % (client, match_id))
-        elif match_id in self._matches:
-            match_id = match_id
-            match = self._matches[match_id]
-            print('User %s joined match %i' % (client, match_id))
-        else:
-            return (False, 'This match does not exist.', match_id)
-        match.users[addr] = client
-        return (True, 'ok', match_id)
-
     def disconnect(self, client):
         assert client in self._clients
-        for (match_id, match) in self._matches.items():
+        for (match_id, match) in list(self._matches.items()):
             try:
-                match.users.remove(client)
+                del match.users[client]
             except KeyError:
                 pass
             else:
                 if not match.users:
-                    print('Match %i closed because %s was the last player in.'%
+                    print('Match %s closed because %s was the last player in.'%
                             (match_id, client))
                     match.close()
                     del self._matches[match_id]

@@ -5,7 +5,8 @@ import inceptoe
 
 def main(host, port, match_id=None):
     print('Running client version %i' % inceptoe.network.PROTOCOL_VERSION)
-    client = inceptoe.client.ClientDriver(None)
+    ui = inceptoe.ui.ConsoleUi()
+    client = inceptoe.client.ClientDriver(ui)
     server = client.connect_to_server(host, port)
     server.join_match(match_id)
     inceptoe.network.run()
