@@ -90,7 +90,7 @@ class Game:
                     self.mini_board_winner(*expected_mini_board) is None:
                 raise InvalidMove('Wrong mini board.')
             if self.mini_board_winner(*played_mini_board) is not None:
-                raise InvalidMove('This mini board has already be won.')
+                raise InvalidMove('This mini board has already been won.')
         if apply_:
             self.grid[line][column] = self.current_player
             self.last_move = (self.current_player, line, column)
