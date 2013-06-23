@@ -65,7 +65,7 @@ class ServerHandler(network.Handler):
         game.make_move(obj['line'], obj['column'])
         return game
 
-class ClientDriver(asyncore.dispatcher):
+class ClientDriver(asyncore.dispatcher_with_send):
     def __init__(self, ui):
         super(ClientDriver, self).__init__()
         self._handlers = []

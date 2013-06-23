@@ -30,7 +30,7 @@ def uid():
         _last_uid += 1
         return str(_last_uid)
 
-class Handler(asyncore.dispatcher):
+class Handler(asyncore.dispatcher_with_send):
     """Abstract class for managing a connection an events."""
     def __init__(self, sock=None, ui=None):
         super(Handler, self).__init__(sock)

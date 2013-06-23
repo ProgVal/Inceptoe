@@ -102,7 +102,7 @@ class ClientHandler(network.Handler):
         self.close()
 
     
-class ServerDriver(asyncore.dispatcher):
+class ServerDriver(asyncore.dispatcher_with_send):
     """Factory of ClientHandler objects."""
     def __init__(self, host, port):
         super(ServerDriver, self).__init__()
