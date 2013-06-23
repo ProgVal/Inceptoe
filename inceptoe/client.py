@@ -65,6 +65,17 @@ class ServerHandler(network.Handler):
         game.make_move(obj['line'], obj['column'])
         return game
 
+    def on_message(self, obj):
+        assert isinstance(obj['match_id'], str)
+        assert isinstance(obj['from'], str)
+        assert isinstance(obj['message'], str)
+        return (obj['match_id'], obj['from'], obj['message'])
+
+    def send_message(self, message):
+        self.send(msgpack.packb({'command': 'message',
+            'match_id': self._match.match_id,
+            'message': message}))
+
 class ClientDriver(asyncore.dispatcher_with_send):
     def __init__(self, ui):
         super(ClientDriver, self).__init__()

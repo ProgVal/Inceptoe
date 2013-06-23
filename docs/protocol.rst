@@ -101,3 +101,16 @@ Keys:
 * `match_id`
 * `line`
 * `column`
+
+message
+-------
+
+Sent by a client (when the player says something) or by a server (relayed from
+a client)
+
+Keys:
+
+* `match_id`
+* `from`: The identifier of the user sending the message. Ignored in
+  client->server transactions.
+* `message`: The content of the message.

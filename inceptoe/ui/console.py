@@ -1,3 +1,6 @@
+import sys
+import asyncore
+
 from ..game import Game, InvalidMove, coord_in_mini_board
 
 COLORS = {
@@ -27,7 +30,21 @@ COLORS = {
         'on_cyan'    :    '\033[46m',
         'on_white'   :    '\033[47m' }
 
+class StdinWatcher(asyncore.file_dispatcher):
+    def __init__(self, ui):
+        super(StdinWatcher, self).__init__(sys.stdin)
+        self._ui = ui
+
+    def handle_read(self):
+        self._ui.on_keyboard_input(self.recv(1024).decode('utf8'))
+
+
 class ConsoleUi:
+    def __init__(self):
+        self._watcher = StdinWatcher(self)
+        self._waiting_for_move = False
+        self._input_buffer = ''
+
     def set_handler(self, handler):
         self._handler = handler
 
@@ -42,8 +59,7 @@ class ConsoleUi:
         self.print_game(game)
         winner = game.board_winner()
         if winner is None and game.current_player == self._char:
-            while not self.play(game):
-                pass
+            self.play(game)
         elif winner is not None:
             print('%s won.' % winner)
         else:
@@ -101,26 +117,60 @@ class ConsoleUi:
 
 
     def play(self, game):
-        move = input('Move? ')
+        sys.stdout.write('Move? ')
+        sys.stdout.flush()
+        self._waiting_for_move = True
+        self._game = game
+
+    def on_keyboard_input(self, input_):
+        self._input_buffer += input_
+        messages = self._input_buffer.split('\n')
+        self._input_buffer = messages[-1]
+        messages = messages[0:-1]
+
+        for message in filter(bool, messages):
+            if self._waiting_for_move:
+                if self.make_move(message):
+                    self._waiting_for_move = False
+                else:
+                    self._handler.send_message(message)
+            else:
+                self._handler.send_message(message)
+
+
+    def make_move(self, move):
+        """Tried to make a move.
+
+        :param move: A string that is either a message or a move
+        :returns: True if it is a move, False otherwise (ie. it's a message).
+        """
+        print(repr(move))
         if len(move) != 2:
-            print('Bad input. Should be a letter (line) and a digit(column)')
             return False
         (line, column) = move
         line = ord(line.lower()) - ord('a')
         if not (0 <= line <= 8):
-            print('Invalid line.')
             return False
         if not column.isdigit() or not (1 <= int(column) <= 9):
-            print('Invalid column.')
             return False
         column = int(column)-1
 
 
         try:
-            game.make_move(line, column, apply_=False)
+            self._game.make_move(line, column, apply_=False)
         except InvalidMove as e:
             print('Invalid move: %s' % e.args[0])
-            return False
+            return True
         else:
             self._handler.make_move(line, column)
             return True
+
+    def on_message(self, obj, t):
+        (match_id, from_, message) = t
+        if self._waiting_for_move:
+            prompt = 'Move? '
+            backspaces = '\b'*len(prompt)
+        else:
+            backspaces = prompt = ''
+        sys.stdout.write('%s<%s> %s\n%s' % (backspaces, from_, message, prompt))
+        sys.stdout.flush()

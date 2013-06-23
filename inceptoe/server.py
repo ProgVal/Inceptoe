@@ -94,6 +94,16 @@ class ClientHandler(network.Handler):
         if winner is not None:
             self.new_game(match)
 
+    def on_message(self, obj):
+        message = obj['message']
+        assert isinstance(message, str)
+        match = self._server._matches[obj['match_id']]
+        for (addr, handler) in match.users.items():
+            handler.send(msgpack.packb({'command': 'message',
+                'match_id': obj['match_id'],
+                'from': str(self._addr),
+                'message': message}))
+
     def handle_close(self):
         if not self.connected: # This method is actually called twice
             return
