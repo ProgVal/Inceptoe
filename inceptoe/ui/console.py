@@ -40,9 +40,12 @@ class ConsoleUi:
 
     def on_make_move(self, obj, game):
         self.print_game(game)
-        if game.current_player == self._char:
+        winner = game.board_winner()
+        if winner is None and game.current_player == self._char:
             while not self.play(game):
                 pass
+        elif winner is not None:
+            print('%s won.' % winner)
         else:
             print('%s\'s turn.' % game.current_player)
 
