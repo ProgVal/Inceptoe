@@ -76,6 +76,11 @@ class ServerHandler(network.Handler):
             'match_id': self._match.match_id,
             'message': message}))
 
+    def handle_close(self):
+        super(ServerHandler, self).handle_close()
+        if self._ui and hasattr(self._ui, 'handle_connection_closed'):
+            self._ui.handle_connection_closed()
+
 class ClientDriver(asyncore.dispatcher_with_send):
     def __init__(self, ui):
         super(ClientDriver, self).__init__()

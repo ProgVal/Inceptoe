@@ -174,3 +174,8 @@ class ConsoleUi:
             backspaces = prompt = ''
         sys.stdout.write('%s<%s> %s\n%s' % (backspaces, from_, message, prompt))
         sys.stdout.flush()
+
+    def handle_connection_closed(self):
+        print('Server closed connection.')
+        exit()
+
