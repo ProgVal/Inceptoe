@@ -62,7 +62,7 @@ class ConsoleUi:
             for c1 in range(0, 3):
                 s = []
                 color = ''
-                winner = game.mini_board_winner(c1, l1)
+                winner = game.mini_board_winner(l1, c1)
                 if (l1, c1) == expected_mini_board:
                     color = COLORS['on_blue']
                 elif winner == 'X':
