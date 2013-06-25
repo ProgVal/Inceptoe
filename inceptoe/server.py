@@ -10,6 +10,7 @@ class ClientHandler(network.Handler):
     """Handles connection to a client."""
     def __init__(self, sock, addr, server):
         print('Client connecting from %s.' % (addr,))
+        self.nick = str(addr) # Temporary nick
         self._addr = addr
         self._server = server
         super(ClientHandler, self).__init__(sock)
@@ -18,14 +19,43 @@ class ClientHandler(network.Handler):
         assert 'version' in handshake, handshake
         version = handshake['version']
         assert isinstance(version, int)
-        version_ok = (network.PROTOCOL_VERSION == version)
-        self.send(msgpack.packb({'command': 'handshake_reply',
-            'accepted': version_ok,
-            'version': network.PROTOCOL_VERSION}))
-        if not version_ok:
-            print('%s has version %i, aborting.' % (addr, version))
+        nick = handshake['nickname']
+        assert isinstance(nick, str)
+        if network.PROTOCOL_VERSION != version:
+            self.send(msgpack.packb({'command': 'handshake_reply',
+                'accepted': False,
+                'error_message': 'Invalid version.',
+                'version': network.PROTOCOL_VERSION}))
+            print('%s has version %i, aborting.' % (self._addr, version))
+            self.close()
             return
-        print('%s has version %i.' % (self._addr, version))
+        elif nick in self._server._clients:
+            self.send(msgpack.packb({'command': 'handshake_reply',
+                'accepted': False,
+                'error_message': 'Nickname already in use.',
+                'version': network.PROTOCOL_VERSION}))
+            print('%s claims a nickname already in use (%s).' %
+                    (self._addr, nick))
+            self.close()
+            return
+        elif len(nick) > 20 or any(map(lambda x:x in nick, '\n\r \t,"\'')):
+            self.send(msgpack.packb({'command': 'handshake_reply',
+                'accepted': False,
+                'error_message': 'Invalid nick.',
+                'version': network.PROTOCOL_VERSION}))
+            print('%s claims an invalid nickname (%r).' %
+                    (self._addr, nick))
+            self.close()
+            return
+        else:
+            self.send(msgpack.packb({'command': 'handshake_reply',
+                'accepted': True,
+                'version': network.PROTOCOL_VERSION}))
+            print('"%s" connecting from %s with version %i.' %
+                    (nick, self._addr, version))
+            self.nick = nick
+            self._server._clients[nick] = self
+            del self._server._clients[str(self._addr)]
 
     def on_join_match(self, obj):
         match_id = obj['match_id'] if 'match_id' in obj else None
@@ -33,22 +63,22 @@ class ClientHandler(network.Handler):
             match_id = network.uid()
             match = Match(match_id=match_id)
             self._server._matches[match_id] = match
-            print('User %s created match %s' % (self._addr, match_id))
+            print('User "%s" created match %s' % (self.nick, match_id))
         elif match_id in self._server._matches:
             match_id = match_id
             match = self._server._matches[match_id]
-            print('User %s joined match %s' % (self._addr, match_id))
+            print('User "%s" joined match %s' % (self.nick, match_id))
         else:
             self.send(msgpack.packb({'command': 'join_match_reply',
                 'accepted': False,
                 'error_message': 'This match (%r) does not exist.' % match_id
                 }))
             return
-        for (addr, handler) in match.users.items():
+        for (nick, handler) in match.users.items():
             handler.send(msgpack.packb({'command': 'user_joined_match',
-                'user': str(self._addr),
+                'user': nick,
                 'match_id': match_id}))
-        match.users[self._addr] = self
+        match.users[self.nick] = self
         self.send(msgpack.packb({'command': 'join_match_reply',
             'accepted': True,
             'match_id': match_id,
@@ -64,10 +94,10 @@ class ClientHandler(network.Handler):
                 list(map(lambda x:None, range(2, len(match.users))))))
         game = Game('X', users)
         self._server._matches[match.match_id].game = game
-        for (addr, handler) in match.users.items():
+        for (nick, handler) in match.users.items():
             handler.send(msgpack.packb({'command': 'new_game',
                 'match_id': match.match_id,
-                'your_char': users[str(addr)],
+                'your_char': users[nick],
                 'game': game.to_dict()}))
 
 
@@ -85,7 +115,7 @@ class ClientHandler(network.Handler):
             self.send(msgpack.packb({'command': 'error',
                 'message': 'Invalid move: %s' % e.args[0]}))
             return
-        for (addr, handler) in match.users.items():
+        for (nick, handler) in match.users.items():
             handler.send(msgpack.packb({'command': 'make_move',
                 'match_id': obj['match_id'],
                 'line': line,
@@ -98,17 +128,17 @@ class ClientHandler(network.Handler):
         message = obj['message']
         assert isinstance(message, str)
         match = self._server._matches[obj['match_id']]
-        for (addr, handler) in match.users.items():
+        for (nick, handler) in match.users.items():
             handler.send(msgpack.packb({'command': 'message',
                 'match_id': obj['match_id'],
-                'from': str(self._addr),
+                'from': self.nick,
                 'message': message}))
 
     def handle_close(self):
         if not self.connected: # This method is actually called twice
             return
-        print('Client %s closed the connection.' % (self._addr,))
-        self._server.disconnect(self._addr)
+        print('Client "%s" closed the connection.' % (self.nick))
+        self._server.disconnect(self.nick)
         self.close()
 
     
@@ -125,7 +155,7 @@ class ServerDriver(asyncore.dispatcher_with_send):
 
     def handle_accept(self):
         (sock, addr) = self.accept()
-        self._clients[addr] = ClientHandler(sock, addr, self)
+        self._clients[str(addr)] = ClientHandler(sock, addr, self)
 
     def disconnect(self, client):
         assert client in self._clients

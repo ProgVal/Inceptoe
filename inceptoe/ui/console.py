@@ -49,10 +49,12 @@ class ConsoleUi:
         self._handler = handler
 
     def on_join_match_reply(self, reply, match):
-        print('Joined match %s. Users: %s' % (match.match_id, match.users))
-        print('If you want another user to join the match, tell them to run:')
-        print('./inceptoe-client.py %s %i %s' % (self._handler._host,
-            self._handler._port, match.match_id))
+        print('Joined match %s. %i user(s) in.' %
+                (match.match_id, len(match.users)))
+        print('If you want another user to join the match, tell them to run ')
+        print('this command (and to replace NICKNAME with their nickname):')
+        print('./inceptoe-client.py %s %i NICKNAME %s' %
+                (self._handler._host, self._handler._port, match.match_id))
 
     def on_new_game(self, obj, game):
         self._char = obj['your_char']

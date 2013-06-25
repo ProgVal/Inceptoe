@@ -33,10 +33,11 @@ git clone https://github.com/ProgVal/Inceptoe.git
 cd Inceptoe
 ```
 
-Finally, the first player starts a game:
+Finally, the first player starts a game (replace `NICKNAME` with a nickname
+you want to use in game):
 
 ```
-./inceptoe-client.py progval.net 8520
+./inceptoe-client.py progval.net 8520 NICKNAME
 ```
 
 And it will display the command the other player should run to join
