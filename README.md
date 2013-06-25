@@ -27,7 +27,7 @@ sudo pip-3.2 install msgpack-python
 The, download the source code on both computers:
 
 ```
-https://github.com/ProgVal/Inceptoe.git
+git clone https://github.com/ProgVal/Inceptoe.git
 cd Inceptoe
 ```
 
