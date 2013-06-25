@@ -10,6 +10,8 @@ class ServerHandler(network.Handler):
     """Handles connection to a server."""
     def __init__(self, host, port, ui):
         super(ServerHandler, self).__init__(ui=ui)
+        self._host = host
+        self._port = port
         self._server_version = None
         self._match = None
         self._games = {}
