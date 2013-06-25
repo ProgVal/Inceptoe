@@ -17,12 +17,14 @@ cd to the `docs/` folder, run `make html` and open `_build/html/index.html`.
 How to play
 ===========
 
-First, install dependencies. Here is the command for Debian:
+First, install dependencies. Here is the command for Debian and Ubuntu:
 
 ```
-sudo aptitude install python3.2 git
+sudo aptitude install git python3 python3-pip
 sudo pip-3.2 install msgpack-python
 ```
+
+(If the second command does not work, replace `pip-3.2` with `pip-3.3`.)
 
 The, download the source code on both computers:
 
