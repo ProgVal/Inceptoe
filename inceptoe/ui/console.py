@@ -149,7 +149,6 @@ class ConsoleUi:
         :param move: A string that is either a message or a move
         :returns: True if it is a move, False otherwise (ie. it's a message).
         """
-        print(repr(move))
         if len(move) != 2:
             return False
         (line, column) = move
