@@ -12,6 +12,13 @@ disabling won little boards even if they are not full.
 Protocol and reference
 ======================
 
+First, you need to install Sphinx, the documentation compiler. On Debian
+or Ubuntu, run:
+
+```
+sudo aptitude install sphinx-doc
+```
+
 cd to the `docs/` folder, run `make html` and open `_build/html/index.html`.
 
 How to play
