@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Protocol &mdash; Inceptoe 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Inceptoe 1.0 documentation" href="index.html" />
+    <link rel="next" title="Reference" href="reference/index.html" />
+    <link rel="prev" title="Welcome to Inceptoe’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="reference/index.html" title="Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Inceptoe’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Inceptoe 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="protocol">
+<h1>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h1>
+<p>All messages are msgpack-encoding dictionnaries with a &#8216;command&#8217; entry.</p>
+<p>On connection, client sends a &#8216;handshake&#8217; message, and the server replies
+with a &#8216;handshake_reply&#8217; message.</p>
+<p>Definitions:</p>
+<ul class="simple">
+<li>user (or client): someone connected to the server. A user is identified
+with a unique string.</li>
+<li>player: a user who is in a match.</li>
+<li>game: a grid, two players, optional spectators. Moves.</li>
+<li>match: Contains a game. When a game is ended, a new one is created.
+Can be created or joined by a user. Ends when there is no player left.</li>
+</ul>
+<p>For the moment, a user may only be in one match per server, but it may
+change in a future version of the protocol.</p>
+<p>Documentation of each command:</p>
+<div class="section" id="handshake">
+<h2>handshake<a class="headerlink" href="#handshake" title="Permalink to this headline">¶</a></h2>
+<p>Should only be sent by the client when connecting.</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>version</cite>: The protocol version, as an integer.</li>
+</ul>
+</div>
+<div class="section" id="handshake-reply">
+<h2>handshake_reply<a class="headerlink" href="#handshake-reply" title="Permalink to this headline">¶</a></h2>
+<p>Should only be sent by the server, in reply of an <cite>handshake</cite> command.</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>accepted</cite>: Whether or not the connection is accepted.</li>
+<li><cite>error_message</cite>: An error message, if the connection is not accepted.
+Ignored or not given otherwise.</li>
+<li><cite>version</cite>: Server version.</li>
+</ul>
+</div>
+<div class="section" id="join-match">
+<h2>join_match<a class="headerlink" href="#join-match" title="Permalink to this headline">¶</a></h2>
+<p>Sent by the client when it wants to join a game.</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>match_id</cite>: The ID of the match to join. If not given or None,
+creates a new match.</li>
+</ul>
+</div>
+<div class="section" id="join-match-reply">
+<h2>join_match_reply<a class="headerlink" href="#join-match-reply" title="Permalink to this headline">¶</a></h2>
+<p>Sent by the server in reply to a <cite>join_match</cite> command.</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>accepted</cite>: Whether or not the match request is accepted.</li>
+<li><cite>error_message</cite>: An error message, if the match request is not accepted.
+Ignored or not given otherwise.</li>
+<li><cite>match_id</cite>: The ID of the match if it is accepted (Integer).
+Ignored or not given otherwise.</li>
+<li><cite>users</cite>: List of users in the match (including the recipient), if the
+match request is accepted.</li>
+</ul>
+</div>
+<div class="section" id="user-joined-match">
+<h2>user_joined_match<a class="headerlink" href="#user-joined-match" title="Permalink to this headline">¶</a></h2>
+<p>Sent by the server when a user joined a match.</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>user</cite>: The identifier of the user.</li>
+<li><cite>match_id</cite>: The ID of the match if it is accepted.</li>
+</ul>
+</div>
+<div class="section" id="new-game">
+<h2>new_game<a class="headerlink" href="#new-game" title="Permalink to this headline">¶</a></h2>
+<p>Sent by a server when a new game starts.</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>match_id</cite>: The ID of the match in which the game takes place.</li>
+<li><cite>your_char</cite>: Character used by the client receiving this message
+(one-char string if playing, None if spectator).</li>
+<li><cite>users</cite>: {user: char} mapping.</li>
+<li><cite>current_player</cite>: Character of the player who is expected to play first.
+(one-char string).</li>
+</ul>
+</div>
+<div class="section" id="make-move">
+<h2>make_move<a class="headerlink" href="#make-move" title="Permalink to this headline">¶</a></h2>
+<p>Sent by a client (when the player plays) or by a server (relayed from a
+client).</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>match_id</cite></li>
+<li><cite>line</cite></li>
+<li><cite>column</cite></li>
+</ul>
+</div>
+<div class="section" id="message">
+<h2>message<a class="headerlink" href="#message" title="Permalink to this headline">¶</a></h2>
+<p>Sent by a client (when the player says something) or by a server (relayed from
+a client)</p>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>match_id</cite></li>
+<li><cite>from</cite>: The identifier of the user sending the message. Ignored in
+client-&gt;server transactions.</li>
+<li><cite>message</cite>: The content of the message.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Protocol</a><ul>
+<li><a class="reference internal" href="#handshake">handshake</a></li>
+<li><a class="reference internal" href="#handshake-reply">handshake_reply</a></li>
+<li><a class="reference internal" href="#join-match">join_match</a></li>
+<li><a class="reference internal" href="#join-match-reply">join_match_reply</a></li>
+<li><a class="reference internal" href="#user-joined-match">user_joined_match</a></li>
+<li><a class="reference internal" href="#new-game">new_game</a></li>
+<li><a class="reference internal" href="#make-move">make_move</a></li>
+<li><a class="reference internal" href="#message">message</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Inceptoe&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reference/index.html"
+                        title="next chapter">Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/protocol.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="reference/index.html" title="Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Inceptoe’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Inceptoe 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Valentin Lorentz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>

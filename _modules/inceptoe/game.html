@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>inceptoe.game &mdash; Inceptoe 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Inceptoe 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Inceptoe 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for inceptoe.game</h1><div class="highlight"><pre>
+<span class="k">class</span> <span class="nc">InvalidMove</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="mini_board_coord"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.mini_board_coord">[docs]</a><span class="k">def</span> <span class="nf">mini_board_coord</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the coordinates of the mini board containing the given</span>
+<span class="sd">    cell coordinates.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">line</span> <span class="o">//</span> <span class="mi">3</span><span class="p">,</span> <span class="n">column</span> <span class="o">//</span> <span class="mi">3</span><span class="p">)</span></div>
+<div class="viewcode-block" id="coord_in_mini_board"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.coord_in_mini_board">[docs]</a><span class="k">def</span> <span class="nf">coord_in_mini_board</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the coordinates of a cell in its mini board.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">line</span> <span class="o">%</span> <span class="mi">3</span><span class="p">,</span> <span class="n">column</span> <span class="o">%</span> <span class="mi">3</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="board_winner"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.board_winner">[docs]</a><span class="k">def</span> <span class="nf">board_winner</span><span class="p">(</span><span class="n">board</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determines the winner of a board (mini board or meta board).</span>
+
+<span class="sd">    :param board: A 3x3 list of lists (or any iterable).</span>
+<span class="sd">    :return: The character of the winner, or None.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">valid</span><span class="p">(</span><span class="n">char</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">valid</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">board</span><span class="p">[</span><span class="n">l</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">valid</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">c</span><span class="p">])</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="n">c</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">valid</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="ow">or</span>
+            <span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">board</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="n">board</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="Game"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game">[docs]</a><span class="k">class</span> <span class="nc">Game</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;State of a game.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_player</span><span class="p">,</span> <span class="n">users</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">last_move</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="o">=</span> <span class="n">current_player</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">users</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span> <span class="ow">or</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:[</span><span class="s">&#39; &#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">9</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_move</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Game.from_dict"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Instanciate a Game instance from a dictionnary sent via</span>
+<span class="sd">        the network.&quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dict_</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="n">current_player</span> <span class="o">=</span> <span class="n">dict_</span><span class="p">[</span><span class="s">&#39;current_player&#39;</span><span class="p">]</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="n">dict_</span><span class="p">[</span><span class="s">&#39;users&#39;</span><span class="p">]</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">dict_</span><span class="p">[</span><span class="s">&#39;grid&#39;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_player</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_player</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">users</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+        <span class="k">def</span> <span class="nf">entry_checker</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> \
+                    <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                     <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">entry_checker</span><span class="p">,</span> <span class="n">users</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="mi">9</span><span class="p">,</span> <span class="n">grid</span><span class="p">))</span>
+        <span class="n">line_checker</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span><span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">line_checker</span><span class="p">,</span> <span class="n">l</span><span class="p">)),</span> <span class="n">grid</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Game</span><span class="p">(</span><span class="n">current_player</span><span class="p">,</span> <span class="n">users</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Game.to_dict"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate a dictionnary that can be serialized.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;current_player&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">,</span> <span class="s">&#39;users&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">,</span>
+                <span class="s">&#39;grid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="s">&#39;last_move&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_move</span><span class="p">}</span>
+</div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s">&#39;inceptoe.game.Game(current_player=</span><span class="si">%s</span><span class="s">, users=</span><span class="si">%s</span><span class="s">, &#39;</span>
+               <span class="s">&#39;grid=</span><span class="si">%s</span><span class="s">, last_move=</span><span class="si">%s</span><span class="s">)&#39;</span><span class="p">)</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_move</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Game.make_move"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game.make_move">[docs]</a>    <span class="k">def</span> <span class="nf">make_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">apply_</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks if a move is authorized.</span>
+
+<span class="sd">        :param line: The line of the move (from 0 to 8)</span>
+<span class="sd">        :param column: The column of th move (from 0 to 8)</span>
+<span class="sd">        :param apply_: If True (and if the move is authorized), commits the</span>
+<span class="sd">                       change to the grid.</span>
+<span class="sd">        :throws InvalidMove: If the move is not valid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_move</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">line</span><span class="p">][</span><span class="n">column</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39; &#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidMove</span><span class="p">(</span><span class="s">&#39;This cell has already been played.&#39;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">last_char</span><span class="p">,</span> <span class="n">last_line</span><span class="p">,</span> <span class="n">last_column</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_move</span>
+            <span class="n">expected_mini_board</span> <span class="o">=</span> <span class="n">coord_in_mini_board</span><span class="p">(</span><span class="n">last_line</span><span class="p">,</span> <span class="n">last_column</span><span class="p">)</span>
+            <span class="n">played_mini_board</span> <span class="o">=</span> <span class="n">mini_board_coord</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">expected_mini_board</span> <span class="o">!=</span> <span class="n">played_mini_board</span> <span class="ow">and</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mini_board_winner</span><span class="p">(</span><span class="o">*</span><span class="n">expected_mini_board</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidMove</span><span class="p">(</span><span class="s">&#39;Wrong mini board.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mini_board_winner</span><span class="p">(</span><span class="o">*</span><span class="n">played_mini_board</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidMove</span><span class="p">(</span><span class="s">&#39;This mini board has already been won.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">apply_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">line</span><span class="p">][</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_move</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_next_player</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Game.select_next_player"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game.select_next_player">[docs]</a>    <span class="k">def</span> <span class="nf">select_next_player</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the char of the next player.&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">c</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="s">&#39; &#39;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">users</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Game.mini_board_winner"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game.mini_board_winner">[docs]</a>    <span class="k">def</span> <span class="nf">mini_board_winner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the winner of a mini board.</span>
+
+<span class="sd">        :param line: Line of the mini board (from 0 to 2).</span>
+<span class="sd">        :param column: Column of the mini board (from 0 to 2).</span>
+<span class="sd">        :returns: The character of the winner of the mini board or None.&quot;&quot;&quot;</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">column</span>
+        <span class="k">return</span> <span class="n">board_winner</span><span class="p">([</span>
+            <span class="n">g</span><span class="p">[</span><span class="n">l</span><span class="o">*</span><span class="mi">3</span><span class="p">][</span><span class="n">c</span><span class="o">*</span><span class="mi">3</span><span class="p">:</span><span class="n">c</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span>
+            <span class="n">g</span><span class="p">[</span><span class="n">l</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="n">c</span><span class="o">*</span><span class="mi">3</span><span class="p">:</span><span class="n">c</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span>
+            <span class="n">g</span><span class="p">[</span><span class="n">l</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">][</span><span class="n">c</span><span class="o">*</span><span class="mi">3</span><span class="p">:</span><span class="n">c</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">3</span><span class="p">],</span>
+            <span class="p">])</span></div>
+<div class="viewcode-block" id="Game.board_winner"><a class="viewcode-back" href="../../reference/game.html#inceptoe.game.Game.board_winner">[docs]</a>    <span class="k">def</span> <span class="nf">board_winner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the winner of the game.</span>
+
+<span class="sd">        :returns: The character of the winner of the mini board or None.&quot;&quot;&quot;</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">board_winner</span>
+        <span class="k">return</span> <span class="n">w</span><span class="p">([[</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]]),</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]]),</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="p">([</span><span class="n">g</span><span class="p">[</span><span class="mi">6</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">7</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">8</span><span class="p">][</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]]),</span>
+                <span class="p">],</span>
+                <span class="p">])</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Inceptoe 1.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Valentin Lorentz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.
+    </div>
+  </body>
+</html>
