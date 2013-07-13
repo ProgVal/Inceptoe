@@ -48,8 +48,9 @@ Sent by the client when it wants to join a game.
 
 Keys:
 
-* `match_id`: The ID of the match to join. If not given or None,
-  creates a new match.
+* `match_id`: The ID of the match to join. If not given or None or if there
+  is no match with this name, it creates a new match.
+  The server may forbid some names.
 
 join\_match\_reply
 -----------------
