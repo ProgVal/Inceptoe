@@ -1,3 +1,4 @@
+import re
 import socket
 import msgpack
 import asyncore
@@ -59,21 +60,21 @@ class ClientHandler(network.Handler):
 
     def on_join_match(self, obj):
         match_id = obj['match_id'] if 'match_id' in obj else None
-        if match_id is None:
-            match_id = network.uid()
-            match = Match(match_id=match_id)
-            self._server._matches[match_id] = match
-            print('User "%s" created match %s' % (self.nick, match_id))
-        elif match_id in self._server._matches:
-            match_id = match_id
+        match_id = match_id or network.uid()
+        assert isinstance(match_id, str), match_id
+        if match_id in self._server._matches:
             match = self._server._matches[match_id]
             print('User "%s" joined match %s' % (self.nick, match_id))
         else:
-            self.send(msgpack.packb({'command': 'join_match_reply',
-                'accepted': False,
-                'error_message': 'This match (%r) does not exist.' % match_id
-                }))
-            return
+            if not re.match('[a-zA-Z0-9-]+', match_id):
+                self.send(msgpack.packb({'command': 'join_match_reply',
+                    'accepted': False,
+                    'error_message': '%r is not a valid match name.' % match_id
+                    }))
+                return
+            match = Match(match_id=match_id)
+            self._server._matches[match_id] = match
+            print('User "%s" created match %s' % (self.nick, match_id))
         for (nick, handler) in match.users.items():
             handler.send(msgpack.packb({'command': 'user_joined_match',
                 'user': nick,
