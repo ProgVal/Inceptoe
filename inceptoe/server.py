@@ -34,7 +34,7 @@ class ClientHandler(network.Handler):
         elif nick in self._server._clients:
             self.send({'command': 'handshake_reply',
                 'accepted': False,
-                'error_message': 'Nickname already in use.',
+                'error_message': 'Nickname already in use: %r.' % nick,
                 'version': network.PROTOCOL_VERSION})
             logging.info('%s claims a nickname already in use (%s).' %
                     (self._addr, nick))
@@ -86,12 +86,14 @@ class ClientHandler(network.Handler):
             'match_id': match_id,
             'users': sorted(list(map(str, match.users.keys())))})
 
-        if len(match.users) == 2:
+        if len(match.users) == 2 and match.game is None:
             self.new_game(match)
-        elif len(match.users) > 2:
+        elif len(match.users) >= 2:
+            char = 'O' if len(match.users) == 2 else None
+            self.char = char
             self.send({'command': 'new_game',
                 'match_id': match.match_id,
-                'your_char': None,
+                'your_char': char,
                 'game': match.game.to_dict()})
         return match
 

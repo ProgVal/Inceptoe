@@ -6,8 +6,11 @@ class TestClientHandler(server.ClientHandler):
     def __init__(self, addr, server):
         self._objects = []
         super(TestClientHandler, self).__init__(None, addr, server)
+        self.connected = True
     def send(self, obj):
         self._objects.append(obj)
+    def close(self):
+        pass
 
 class TestServerDriver(server.ServerDriver):
     def _setup_network(self):
@@ -111,3 +114,29 @@ class TestServer(unittest.TestCase):
         self.assertEqual(replies[1]['match_id'], 'my_match')
         self.assertEqual(replies[1]['game']['grid'][3][3], 'X')
         self.assertEqual(replies[1]['your_char'], None)
+
+    def testDecoReco(self):
+        (u_X, u_O) = self.classic_initialization()
+        u_X.on_make_move({'line': 3, 'column': 3, 'match_id': 'my_match'})
+        u_O.handle_close()
+        u_bar = self.server.spawn_client()
+        replies = self.get_replies(u_bar.on_handshake,
+            {'version': network.PROTOCOL_VERSION, 'nickname': 'bar'})
+        self.assertEqual(replies,
+            [{'command': 'handshake_reply', 'accepted': True,
+                'version': network.PROTOCOL_VERSION}])
+        replies = self.get_replies(u_bar.on_join_match,
+            {'match_id': 'my_match'})
+        self.assertEqual(len(replies), 2, replies)
+        self.assertEqual(replies[0],
+            {'command': 'join_match_reply', 'accepted': True,
+                'match_id': 'my_match', 'users': ['bar', 'foo']})
+        self.assertEqual(replies[1]['command'], 'new_game')
+        self.assertEqual(replies[1]['match_id'], 'my_match')
+        self.assertEqual(replies[1]['game']['grid'][3][3], 'X')
+        self.assertEqual(replies[1]['your_char'], 'O')
+
+        replies = self.get_replies(u_bar.on_make_move,
+            {'line': 2, 'column': 2, 'match_id': 'my_match'})
+        self.assertEqual(replies[0], {'command': 'make_move',
+            'match_id': 'my_match', 'line': 2, 'column': 2})
