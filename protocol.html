@@ -95,8 +95,9 @@ Ignored or not given otherwise.</li>
 <p>Sent by the client when it wants to join a game.</p>
 <p>Keys:</p>
 <ul class="simple">
-<li><cite>match_id</cite>: The ID of the match to join. If not given or None,
-creates a new match.</li>
+<li><cite>match_id</cite>: The ID of the match to join. If not given or None or if there
+is no match with this name, it creates a new match.
+The server may forbid some names.</li>
 </ul>
 </div>
 <div class="section" id="join-match-reply">
@@ -158,6 +159,45 @@ client-&gt;server transactions.</li>
 <li><cite>message</cite>: The content of the message.</li>
 </ul>
 </div>
+<div class="section" id="char-change">
+<h2>char_change<a class="headerlink" href="#char-change" title="Permalink to this headline">¶</a></h2>
+<p>Sent by the server to all clients when the char of a client changes.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Added in protocol version 2</p>
+</div>
+<p>Keys:</p>
+<ul class="simple">
+<li><cite>match_id</cite></li>
+<li><cite>nick</cite></li>
+<li><cite>new_char</cite></li>
+</ul>
+</div>
+<div class="section" id="ping">
+<h2>ping<a class="headerlink" href="#ping" title="Permalink to this headline">¶</a></h2>
+<p>Sent by the server or the client. The other peer should answer as fast as
+possible with a <cite>pong</cite> command containing the same token.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Added in protocol version 2</p>
+</div>
+<p>Key:</p>
+<ul class="simple">
+<li><cite>token</cite>: A string. Can be whatever the sender wants it to be.</li>
+</ul>
+</div>
+<div class="section" id="pong">
+<h2>pong<a class="headerlink" href="#pong" title="Permalink to this headline">¶</a></h2>
+<p>Sent by the server or the client as a reply to a <cite>ping</cite> command.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Added in protocol version 2</p>
+</div>
+<p>Key:</p>
+<ul class="simple">
+<li><cite>token</cite>: The exact token that was sent in the <cite>ping</cite> command.</li>
+</ul>
+</div>
 </div>
 
 
@@ -177,6 +217,9 @@ client-&gt;server transactions.</li>
 <li><a class="reference internal" href="#new-game">new_game</a></li>
 <li><a class="reference internal" href="#make-move">make_move</a></li>
 <li><a class="reference internal" href="#message">message</a></li>
+<li><a class="reference internal" href="#char-change">char_change</a></li>
+<li><a class="reference internal" href="#ping">ping</a></li>
+<li><a class="reference internal" href="#pong">pong</a></li>
 </ul>
 </li>
 </ul>

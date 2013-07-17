@@ -59,19 +59,15 @@
 
 <div class="viewcode-block" id="ServerHandler"><a class="viewcode-back" href="../../reference/client.html#inceptoe.client.ServerHandler">[docs]</a><span class="k">class</span> <span class="nc">ServerHandler</span><span class="p">(</span><span class="n">network</span><span class="o">.</span><span class="n">Handler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Handles connection to a server.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">nick</span><span class="p">,</span> <span class="n">ui</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ui</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ServerHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ui</span><span class="o">=</span><span class="n">ui</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_host</span> <span class="o">=</span> <span class="n">host</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_nick</span> <span class="o">=</span> <span class="n">nick</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server_version</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_match</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_games</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">({</span><span class="s">&#39;command&#39;</span><span class="p">:</span> <span class="s">&#39;handshake&#39;</span><span class="p">,</span>
-            <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="n">network</span><span class="o">.</span><span class="n">PROTOCOL_VERSION</span><span class="p">,</span>
-            <span class="s">&#39;nickname&#39;</span><span class="p">:</span> <span class="n">nick</span><span class="p">}))</span>
+            <span class="s">&#39;version&#39;</span><span class="p">:</span> <span class="n">network</span><span class="o">.</span><span class="n">PROTOCOL_VERSION</span><span class="p">}))</span>
 
     <span class="k">def</span> <span class="nf">join_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match_id</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">({</span><span class="s">&#39;command&#39;</span><span class="p">:</span> <span class="s">&#39;join_match&#39;</span><span class="p">,</span>
@@ -88,7 +84,7 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server_version</span> <span class="ow">is</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server_version</span> <span class="o">=</span> <span class="n">handshake</span><span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">handshake</span><span class="p">[</span><span class="s">&#39;accepted&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="n">network</span><span class="o">.</span><span class="n">ConnectionRefused</span><span class="p">(</span><span class="n">handshake</span><span class="p">[</span><span class="s">&#39;error_message&#39;</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="n">ConnectionRefused</span><span class="p">(</span><span class="n">handshake</span><span class="p">[</span><span class="s">&#39;error_message&#39;</span><span class="p">])</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&#39;Server has version </span><span class="si">%i</span><span class="s">: ok.&#39;</span> <span class="o">%</span> <span class="n">handshake</span><span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">on_join_match_reply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reply</span><span class="p">):</span>
@@ -119,32 +115,16 @@
         <span class="n">game</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_games</span><span class="p">[</span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;match_id&#39;</span><span class="p">]]</span>
         <span class="n">game</span><span class="o">.</span><span class="n">make_move</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;line&#39;</span><span class="p">],</span> <span class="n">obj</span><span class="p">[</span><span class="s">&#39;column&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">game</span>
-
-    <span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;match_id&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;from&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;message&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s">&#39;match_id&#39;</span><span class="p">],</span> <span class="n">obj</span><span class="p">[</span><span class="s">&#39;from&#39;</span><span class="p">],</span> <span class="n">obj</span><span class="p">[</span><span class="s">&#39;message&#39;</span><span class="p">])</span>
-
-    <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msgpack</span><span class="o">.</span><span class="n">packb</span><span class="p">({</span><span class="s">&#39;command&#39;</span><span class="p">:</span> <span class="s">&#39;message&#39;</span><span class="p">,</span>
-            <span class="s">&#39;match_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match</span><span class="o">.</span><span class="n">match_id</span><span class="p">,</span>
-            <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">}))</span>
-
-    <span class="k">def</span> <span class="nf">handle_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ServerHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">handle_close</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="p">,</span> <span class="s">&#39;handle_connection_closed&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="o">.</span><span class="n">handle_connection_closed</span><span class="p">()</span>
 </div>
-<span class="k">class</span> <span class="nc">ClientDriver</span><span class="p">(</span><span class="n">asyncore</span><span class="o">.</span><span class="n">dispatcher_with_send</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ClientDriver</span><span class="p">(</span><span class="n">asyncore</span><span class="o">.</span><span class="n">dispatcher</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ui</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ClientDriver</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_games</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span> <span class="o">=</span> <span class="n">ui</span>
 
-    <span class="k">def</span> <span class="nf">connect_to_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">nick</span><span class="p">,</span> <span class="n">ui</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">server</span> <span class="o">=</span> <span class="n">ServerHandler</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">nick</span><span class="p">,</span> <span class="n">ui</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">connect_to_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ui</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">server</span> <span class="o">=</span> <span class="n">ServerHandler</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">ui</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ui</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_handlers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">server</span>
