@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
+import logging
 import inceptoe
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s')
 
 def main(host, port):
     print('Running server version %i' % inceptoe.network.PROTOCOL_VERSION)

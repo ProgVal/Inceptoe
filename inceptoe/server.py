@@ -1,5 +1,6 @@
 import re
 import socket
+import logging
 import msgpack
 import asyncore
 
@@ -10,7 +11,7 @@ from .game import Game, InvalidMove
 class ClientHandler(network.Handler):
     """Handles connection to a client."""
     def __init__(self, sock, addr, server):
-        print('Client connecting from %s.' % (addr,))
+        logging.info('Client connecting from %s.' % (addr,))
         self.nick = str(addr) # Temporary nick
         self._addr = addr
         self._server = server
@@ -27,7 +28,7 @@ class ClientHandler(network.Handler):
                 'accepted': False,
                 'error_message': 'Invalid version.',
                 'version': network.PROTOCOL_VERSION})
-            print('%s has version %i, aborting.' % (self._addr, version))
+            logging.info('%s has version %i, aborting.' % (self._addr, version))
             self.close()
             return
         elif nick in self._server._clients:
@@ -35,7 +36,7 @@ class ClientHandler(network.Handler):
                 'accepted': False,
                 'error_message': 'Nickname already in use.',
                 'version': network.PROTOCOL_VERSION})
-            print('%s claims a nickname already in use (%s).' %
+            logging.info('%s claims a nickname already in use (%s).' %
                     (self._addr, nick))
             self.close()
             return
@@ -44,7 +45,7 @@ class ClientHandler(network.Handler):
                 'accepted': False,
                 'error_message': 'Invalid nick.',
                 'version': network.PROTOCOL_VERSION})
-            print('%s claims an invalid nickname (%r).' %
+            logging.info('%s claims an invalid nickname (%r).' %
                     (self._addr, nick))
             self.close()
             return
@@ -52,7 +53,7 @@ class ClientHandler(network.Handler):
             self.send({'command': 'handshake_reply',
                 'accepted': True,
                 'version': network.PROTOCOL_VERSION})
-            print('"%s" connecting from %s with version %i.' %
+            logging.info('"%s" connecting from %s with version %i.' %
                     (nick, self._addr, version))
             self.nick = nick
             self._server._clients[nick] = self
@@ -64,7 +65,7 @@ class ClientHandler(network.Handler):
         assert isinstance(match_id, str), match_id
         if match_id in self._server._matches:
             match = self._server._matches[match_id]
-            print('User "%s" joined match %s' % (self.nick, match_id))
+            logging.info('User "%s" joined match %s' % (self.nick, match_id))
         else:
             if not re.match('[a-zA-Z0-9-]+', match_id):
                 self.send({'command': 'join_match_reply',
@@ -74,7 +75,7 @@ class ClientHandler(network.Handler):
                 return
             match = Match(match_id=match_id)
             self._server._matches[match_id] = match
-            print('User "%s" created match %s' % (self.nick, match_id))
+            logging.info('User "%s" created match %s' % (self.nick, match_id))
         for (nick, handler) in match.users.items():
             handler.send({'command': 'user_joined_match',
                 'user': self.nick,
@@ -138,7 +139,7 @@ class ClientHandler(network.Handler):
     def handle_close(self):
         if not self.connected: # This method is actually called twice
             return
-        print('Client "%s" closed the connection.' % (self.nick))
+        logging.info('Client "%s" closed the connection.' % (self.nick))
         self._server.disconnect(self.nick)
         self.close()
 
@@ -170,7 +171,8 @@ class ServerDriver(asyncore.dispatcher_with_send):
                 pass
             else:
                 if not match.users:
-                    print('Match %s closed because %s was the last player in.'%
+                    logging.info(('Match %s closed because %s was the last '
+                                  'player in.') %
                             (match_id, client))
                     match.close()
                     del self._matches[match_id]
