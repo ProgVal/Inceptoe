@@ -87,7 +87,6 @@ class TestServer(unittest.TestCase):
 
     def testForbiddenPlay(self):
         (u_X, u_O) = self.classic_initialization()
-        print(repr(u_O._server._matches['my_match']))
         self.assertEqual(self.get_replies(u_O.on_make_move,
             {'line': 3, 'column': 3, 'match_id': 'my_match'})[0]['command'],
             'error')
