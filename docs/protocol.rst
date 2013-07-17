@@ -115,3 +115,45 @@ Keys:
 * `from`: The identifier of the user sending the message. Ignored in
   client->server transactions.
 * `message`: The content of the message.
+
+char\_change
+------------
+
+Sent by the server to all clients when the char of a client changes.
+
+.. note::
+
+    Added in protocol version 2
+
+Keys:
+
+* `match_id`
+* `nick`
+* `new_char`
+
+ping
+----
+
+Sent by the server or the client. The other peer should answer as fast as
+possible with a `pong` command containing the same token.
+
+.. note::
+
+    Added in protocol version 2
+
+Key:
+
+* `token`: A string. Can be whatever the sender wants it to be.
+
+pong
+----
+
+Sent by the server or the client as a reply to a `ping` command.
+
+.. note::
+
+    Added in protocol version 2
+
+Key:
+
+* `token`: The exact token that was sent in the `ping` command.

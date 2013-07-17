@@ -8,7 +8,7 @@ import traceback
 from .game import Game
 from .match import Match
 
-PROTOCOL_VERSION = 1
+PROTOCOL_VERSION = 2
 
 class CannotConnect(Exception):
     pass
@@ -71,6 +71,10 @@ class Handler(asyncore.dispatcher_with_send):
         else:
             print('Unknown command received: %s' % obj['command'])
         return True
+
+    def on_ping(self, obj):
+        assert isinstance(obj['token'], str)
+        self.send({'command': 'pong', 'token': obj['token']})
 
     def send(self, obj):
         super(Handler, self).send(msgpack.packb(obj))

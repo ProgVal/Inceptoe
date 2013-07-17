@@ -80,6 +80,9 @@ class ServerHandler(network.Handler):
             'match_id': self._match.match_id,
             'message': message})
 
+    def on_char_change(self, obj):
+        pass
+
     def handle_close(self):
         super(ServerHandler, self).handle_close()
         if self._ui and hasattr(self._ui, 'handle_connection_closed'):

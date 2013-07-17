@@ -140,3 +140,28 @@ class TestServer(unittest.TestCase):
             {'line': 2, 'column': 2, 'match_id': 'my_match'})
         self.assertEqual(replies[0], {'command': 'make_move',
             'match_id': 'my_match', 'line': 2, 'column': 2})
+
+    def testDecoWithSpectator(self):
+        (u_X, u_O) = self.classic_initialization()
+        u_X.on_make_move({'line': 3, 'column': 3, 'match_id': 'my_match'})
+        u_spec = self.server.spawn_client()
+        u_spec.on_handshake(
+                {'version': network.PROTOCOL_VERSION, 'nickname': 'baz'})
+        u_spec.on_join_match({'match_id': 'my_match'})
+
+        self.get_objects(u_O)
+        self.get_objects(u_X)
+        self.get_objects(u_spec)
+        u_O.handle_close()
+        self.assertEqual(self.get_objects(u_X),
+            [{'command': 'char_change', 'nick': u_spec.nick,
+                'new_char': 'O', 'match_id': 'my_match'}])
+        self.assertEqual(self.get_objects(u_spec),
+            [{'command': 'char_change', 'nick': u_spec.nick,
+                'new_char': 'O', 'match_id': 'my_match'}])
+
+    def testPing(self):
+        (u_X, u_O) = self.classic_initialization()
+        replies = self.get_replies(u_O.on_ping,
+            {'token': 'egg'})
+        self.assertEqual(replies, [{'command': 'pong', 'token': 'egg'}])

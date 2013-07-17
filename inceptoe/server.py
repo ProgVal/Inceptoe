@@ -155,6 +155,15 @@ class ClientHandler(network.Handler):
         self._server.disconnect(self.nick)
         self.close()
 
+    def set_char(self, match, new_char):
+        for (nick, handler) in match.users.items():
+            handler.send({'command': 'char_change',
+                'match_id': match.match_id,
+                'nick': self.nick,
+                'new_char': new_char})
+        self.char = new_char
+
+
     
 class ServerDriver(asyncore.dispatcher_with_send):
     """Factory of ClientHandler objects."""
@@ -179,6 +188,10 @@ class ServerDriver(asyncore.dispatcher_with_send):
         for (match_id, match) in list(self._matches.items()):
             try:
                 del match.users[client]
+                for handler in match.users.values():
+                    if handler.char is None:
+                        handler.set_char(match, self._clients[client].char)
+                        break
             except KeyError:
                 pass
             else:
