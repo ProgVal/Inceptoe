@@ -84,7 +84,7 @@ class ClientHandler(network.Handler):
         self.send({'command': 'join_match_reply',
             'accepted': True,
             'match_id': match_id,
-            'users': list(map(str, match.users.keys()))})
+            'users': sorted(list(map(str, match.users.keys())))})
 
         if len(match.users) == 2:
             self.new_game(match)

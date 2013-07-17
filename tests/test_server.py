@@ -56,7 +56,7 @@ class TestServer(unittest.TestCase):
         self.assertEqual(len(replies), 2, replies)
         self.assertEqual(replies[0],
             {'command': 'join_match_reply', 'accepted': True,
-                'match_id': 'my_match', 'users': ['foo', 'bar']})
+                'match_id': 'my_match', 'users': ['bar', 'foo']})
 
         replies2 = self.get_objects(u_foo)
         self.assertEqual(len(replies2), 2, replies2)
