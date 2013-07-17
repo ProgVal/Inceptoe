@@ -91,5 +91,23 @@ class TestServer(unittest.TestCase):
             {'line': 3, 'column': 3, 'match_id': 'my_match'})[0]['command'],
             'error')
 
+    def testSpectator(self):
+        (u_X, u_O) = self.classic_initialization()
+        u_X.on_make_move({'line': 3, 'column': 3, 'match_id': 'my_match'})
 
-
+        u_spec = self.server.spawn_client()
+        replies = self.get_replies(u_spec.on_handshake,
+            {'version': network.PROTOCOL_VERSION, 'nickname': 'baz'})
+        self.assertEqual(replies,
+            [{'command': 'handshake_reply', 'accepted': True,
+                'version': network.PROTOCOL_VERSION}])
+        replies = self.get_replies(u_spec.on_join_match,
+            {'match_id': 'my_match'})
+        self.assertEqual(len(replies), 2, replies)
+        self.assertEqual(replies[0],
+            {'command': 'join_match_reply', 'accepted': True,
+                'match_id': 'my_match', 'users': ['bar', 'baz', 'foo']})
+        self.assertEqual(replies[1]['command'], 'new_game')
+        self.assertEqual(replies[1]['match_id'], 'my_match')
+        self.assertEqual(replies[1]['game']['grid'][3][3], 'X')
+        self.assertEqual(replies[1]['your_char'], None)

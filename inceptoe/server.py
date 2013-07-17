@@ -88,6 +88,11 @@ class ClientHandler(network.Handler):
 
         if len(match.users) == 2:
             self.new_game(match)
+        elif len(match.users) > 2:
+            self.send({'command': 'new_game',
+                'match_id': match.match_id,
+                'your_char': None,
+                'game': match.game.to_dict()})
         return match
 
     def new_game(self, match):
