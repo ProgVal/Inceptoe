@@ -77,7 +77,7 @@ class ClientHandler(network.Handler):
             print('User "%s" created match %s' % (self.nick, match_id))
         for (nick, handler) in match.users.items():
             handler.send(msgpack.packb({'command': 'user_joined_match',
-                'user': nick,
+                'user': self.nick,
                 'match_id': match_id}))
         match.users[self.nick] = self
         self.send(msgpack.packb({'command': 'join_match_reply',
