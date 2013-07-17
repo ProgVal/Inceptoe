@@ -97,6 +97,7 @@ class ClientHandler(network.Handler):
         game = Game('X', users)
         self._server._matches[match.match_id].game = game
         for (nick, handler) in match.users.items():
+            handler.char = users[nick]
             handler.send({'command': 'new_game',
                 'match_id': match.match_id,
                 'your_char': users[nick],
@@ -111,6 +112,10 @@ class ClientHandler(network.Handler):
         assert 0 <= line <= 8
         assert 0 <= column <= 8
         match = self._server._matches[obj['match_id']]
+        if match.game.current_player != self.char:
+            self.send({'command': 'error',
+                'message': 'Not your turn.'})
+            return
         try:
             match.game.make_move(line, column)
         except InvalidMove as e:
