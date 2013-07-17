@@ -42,7 +42,7 @@ Keys:
 * `version`: Server version.
 
 join\_match
-----------
+-----------
 
 Sent by the client when it wants to join a game.
 
@@ -53,7 +53,7 @@ Keys:
   The server may forbid some names.
 
 join\_match\_reply
------------------
+------------------
 
 Sent by the server in reply to a `join_match` command.
 
