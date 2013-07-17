@@ -72,6 +72,9 @@ class Handler(asyncore.dispatcher_with_send):
             print('Unknown command received: %s' % obj['command'])
         return True
 
+    def send(self, obj):
+        super(Handler, self).send(msgpack.packb(obj))
+
     def handle_error(self):
         traceback.print_exc()
 

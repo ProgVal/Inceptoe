@@ -18,19 +18,19 @@ class ServerHandler(network.Handler):
         self._games = {}
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect((host, port))
-        self.send(msgpack.packb({'command': 'handshake',
+        self.send({'command': 'handshake',
             'version': network.PROTOCOL_VERSION,
-            'nickname': nick}))
+            'nickname': nick})
 
     def join_match(self, match_id):
-        self.send(msgpack.packb({'command': 'join_match',
-            'match_id': match_id}))
+        self.send({'command': 'join_match',
+            'match_id': match_id})
 
     def make_move(self, line, column):
-        self.send(msgpack.packb({'command': 'make_move',
+        self.send({'command': 'make_move',
             'match_id': self._match.match_id,
             'line': line,
-            'column': column}))
+            'column': column})
 
     def on_handshake_reply(self, handshake):
         assert isinstance(handshake['accepted'], bool)
@@ -76,9 +76,9 @@ class ServerHandler(network.Handler):
         return (obj['match_id'], obj['from'], obj['message'])
 
     def send_message(self, message):
-        self.send(msgpack.packb({'command': 'message',
+        self.send({'command': 'message',
             'match_id': self._match.match_id,
-            'message': message}))
+            'message': message})
 
     def handle_close(self):
         super(ServerHandler, self).handle_close()

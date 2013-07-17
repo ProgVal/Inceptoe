@@ -23,35 +23,35 @@ class ClientHandler(network.Handler):
         nick = handshake['nickname']
         assert isinstance(nick, str)
         if network.PROTOCOL_VERSION != version:
-            self.send(msgpack.packb({'command': 'handshake_reply',
+            self.send({'command': 'handshake_reply',
                 'accepted': False,
                 'error_message': 'Invalid version.',
-                'version': network.PROTOCOL_VERSION}))
+                'version': network.PROTOCOL_VERSION})
             print('%s has version %i, aborting.' % (self._addr, version))
             self.close()
             return
         elif nick in self._server._clients:
-            self.send(msgpack.packb({'command': 'handshake_reply',
+            self.send({'command': 'handshake_reply',
                 'accepted': False,
                 'error_message': 'Nickname already in use.',
-                'version': network.PROTOCOL_VERSION}))
+                'version': network.PROTOCOL_VERSION})
             print('%s claims a nickname already in use (%s).' %
                     (self._addr, nick))
             self.close()
             return
         elif len(nick) > 20 or any(map(lambda x:x in nick, '\n\r \t,"\'')):
-            self.send(msgpack.packb({'command': 'handshake_reply',
+            self.send({'command': 'handshake_reply',
                 'accepted': False,
                 'error_message': 'Invalid nick.',
-                'version': network.PROTOCOL_VERSION}))
+                'version': network.PROTOCOL_VERSION})
             print('%s claims an invalid nickname (%r).' %
                     (self._addr, nick))
             self.close()
             return
         else:
-            self.send(msgpack.packb({'command': 'handshake_reply',
+            self.send({'command': 'handshake_reply',
                 'accepted': True,
-                'version': network.PROTOCOL_VERSION}))
+                'version': network.PROTOCOL_VERSION})
             print('"%s" connecting from %s with version %i.' %
                     (nick, self._addr, version))
             self.nick = nick
@@ -67,23 +67,23 @@ class ClientHandler(network.Handler):
             print('User "%s" joined match %s' % (self.nick, match_id))
         else:
             if not re.match('[a-zA-Z0-9-]+', match_id):
-                self.send(msgpack.packb({'command': 'join_match_reply',
+                self.send({'command': 'join_match_reply',
                     'accepted': False,
                     'error_message': '%r is not a valid match name.' % match_id
-                    }))
+                    })
                 return
             match = Match(match_id=match_id)
             self._server._matches[match_id] = match
             print('User "%s" created match %s' % (self.nick, match_id))
         for (nick, handler) in match.users.items():
-            handler.send(msgpack.packb({'command': 'user_joined_match',
+            handler.send({'command': 'user_joined_match',
                 'user': self.nick,
-                'match_id': match_id}))
+                'match_id': match_id})
         match.users[self.nick] = self
-        self.send(msgpack.packb({'command': 'join_match_reply',
+        self.send({'command': 'join_match_reply',
             'accepted': True,
             'match_id': match_id,
-            'users': list(map(str, match.users.keys()))}))
+            'users': list(map(str, match.users.keys()))})
 
         if len(match.users) == 2:
             self.new_game(match)
@@ -96,10 +96,10 @@ class ClientHandler(network.Handler):
         game = Game('X', users)
         self._server._matches[match.match_id].game = game
         for (nick, handler) in match.users.items():
-            handler.send(msgpack.packb({'command': 'new_game',
+            handler.send({'command': 'new_game',
                 'match_id': match.match_id,
                 'your_char': users[nick],
-                'game': game.to_dict()}))
+                'game': game.to_dict()})
 
 
     def on_make_move(self, obj):
@@ -113,14 +113,14 @@ class ClientHandler(network.Handler):
         try:
             match.game.make_move(line, column)
         except InvalidMove as e:
-            self.send(msgpack.packb({'command': 'error',
-                'message': 'Invalid move: %s' % e.args[0]}))
+            self.send({'command': 'error',
+                'message': 'Invalid move: %s' % e.args[0]})
             return
         for (nick, handler) in match.users.items():
-            handler.send(msgpack.packb({'command': 'make_move',
+            handler.send({'command': 'make_move',
                 'match_id': obj['match_id'],
                 'line': line,
-                'column': column}))
+                'column': column})
         winner = match.game.board_winner()
         if winner is not None:
             self.new_game(match)
@@ -130,10 +130,10 @@ class ClientHandler(network.Handler):
         assert isinstance(message, str)
         match = self._server._matches[obj['match_id']]
         for (nick, handler) in match.users.items():
-            handler.send(msgpack.packb({'command': 'message',
+            handler.send({'command': 'message',
                 'match_id': obj['match_id'],
                 'from': self.nick,
-                'message': message}))
+                'message': message})
 
     def handle_close(self):
         if not self.connected: # This method is actually called twice
@@ -145,10 +145,13 @@ class ClientHandler(network.Handler):
     
 class ServerDriver(asyncore.dispatcher_with_send):
     """Factory of ClientHandler objects."""
-    def __init__(self, host, port):
+    def __init__(self, *args):
         super(ServerDriver, self).__init__()
         self._clients = {}
         self._matches = {}
+        self._setup_network(*args)
+
+    def _setup_network(self, host, port):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.set_reuse_addr()
         self.bind((host, port))
