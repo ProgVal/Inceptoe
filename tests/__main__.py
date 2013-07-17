@@ -22,3 +22,7 @@ if __name__ == '__main__':
     suite = unittest.TestSuite(suites)
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
+    if result.wasSuccessful():
+        sys.exit(0)
+    else:
+        sys.exit(1)
