@@ -164,7 +164,7 @@ class ConsoleUi:
             self._game.make_move(line, column, apply_=False)
         except InvalidMove as e:
             print('Invalid move: %s' % e.args[0])
-            return True
+            return False
         else:
             self._handler.make_move(line, column)
             return True
