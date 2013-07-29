@@ -157,6 +157,7 @@ class ClientHandler(network.Handler):
 
     def set_char(self, match, new_char):
         for (nick, handler) in match.users.items():
+            handler.char = new_char
             handler.send({'command': 'char_change',
                 'match_id': match.match_id,
                 'nick': self.nick,
