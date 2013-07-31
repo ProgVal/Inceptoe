@@ -1,7 +1,7 @@
 Protocol
 ^^^^^^^^
 
-All messages are msgpack-encoding dictionnaries with a 'command' entry.
+All messages are msgpack-encoded dictionnaries with a 'command' entry.
 
 On connection, client sends a 'handshake' message, and the server replies
 with a 'handshake\_reply' message.
